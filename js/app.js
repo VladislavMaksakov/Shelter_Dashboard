@@ -322,9 +322,6 @@ function updateDashboard() {
       // Shorten assistance type labels
       const atLabel = shortenAssistType(i.assistanceType);
       assistTypeMap[atLabel] = (assistTypeMap[atLabel] || 0) + i.people;
-
-      partnerMap[i.partner] = (partnerMap[i.partner] || 0) + i.people;
-
       if (i.popGroup !== 'Unknown') popGroupMap[i.popGroup] = (popGroupMap[i.popGroup] || 0) + i.people;
    });
 
