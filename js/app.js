@@ -112,6 +112,7 @@ function processRawData(valueRanges) {
             amount: parseNum(r[19]),
             fuelTotal: 0, wood: 0, briq: 0, coal: 0
          });
+         console.log("CASH:", r);
       });
    }
 
@@ -138,6 +139,7 @@ function processRawData(valueRanges) {
             amount: 0,
             fuelTotal: w + b + c, wood: w, briq: b, coal: c
          });
+         console.log("IN KIND:", r);
       });
    }
 
@@ -161,6 +163,7 @@ function processRawData(valueRanges) {
             amount: parseNum(r[10]),
             fuelTotal: 0, wood: 0, briq: 0, coal: 0
          });
+         console.log("INFRA:", r);
       });
    }
 
@@ -168,6 +171,10 @@ function processRawData(valueRanges) {
    populateFilters();
    initMap();
    updateDashboard();
+
+   setTimeout(() => {
+      if (leafletMap) leafletMap.invalidateSize();
+   }, 300);
    document.getElementById('loader').style.display = 'none';
 }
 
@@ -187,7 +194,17 @@ function normalizePopGroup(s) {
    return s;
 }
 
-function parseNum(v) { return v ? parseFloat(String(v).replace(/\s/g, '').replace(',', '.')) || 0 : 0; }
+function parseNum(v) {
+   if (v === undefined || v === null || v === '') return 0;
+
+   return parseFloat(
+      String(v)
+         .replace(/\s/g, '')
+         .replace(',', '.')
+         .replace(/[^\d.-]/g, '')
+   ) || 0;
+}
+
 function parseDate(s) {
    if (!s) return null;
    if (s instanceof Date) return s;
@@ -288,12 +305,21 @@ function updateDashboard() {
    });
 
    // KPIs
-   animateValue('kpi-hh', tHhs);
-   animateValue('kpi-people', tPeople);
-   animateValue('kpi-amount', tAmount, true);
-   animateValue('kpi-fuel', Math.round(tFuel));
-   animateValue('kpi-partners', partnerSet.size);
-   animateValue('kpi-disabled', tDisabled);
+   const kpiCards = document.querySelectorAll('.kpi-card');
+
+   kpiCards[0].style.display = tHhs ? 'flex' : 'none';
+   kpiCards[1].style.display = tPeople ? 'flex' : 'none';
+   kpiCards[2].style.display = tAmount ? 'flex' : 'none';
+   kpiCards[3].style.display = tFuel ? 'flex' : 'none';
+   kpiCards[4].style.display = partnerSet.size ? 'flex' : 'none';
+   kpiCards[5].style.display = tDisabled ? 'flex' : 'none';
+
+   if (tHhs) animateValue('kpi-hh', tHhs);
+   if (tPeople) animateValue('kpi-people', tPeople);
+   if (tAmount) animateValue('kpi-amount', tAmount, true);
+   if (tFuel) animateValue('kpi-fuel', Math.round(tFuel));
+   if (partnerSet.size) animateValue('kpi-partners', partnerSet.size);
+   if (tDisabled) animateValue('kpi-disabled', tDisabled);
 
    // Charts
    updateChartOblasts(obMap);
@@ -325,8 +351,25 @@ function shortenAssistType(s) {
 
 // === CHARTS ===
 function destroyAndCreate(key, canvasId, config) {
+   const canvas = document.getElementById(canvasId);
+   if (!canvas) return;
+
+   const hasData =
+      config?.data?.datasets?.some(ds =>
+         ds.data && ds.data.some(v => v > 0)
+      );
+
+   if (!hasData) {
+      if (charts[key]) {
+         charts[key].destroy();
+         charts[key] = null;
+      }
+      return;
+   }
+
    if (charts[key]) charts[key].destroy();
-   const ctx = document.getElementById(canvasId).getContext('2d');
+
+   const ctx = canvas.getContext('2d');
    charts[key] = new Chart(ctx, config);
 }
 
@@ -428,7 +471,10 @@ function updateMapMarkers(obMap) {
    mapMarkers = [];
    if (!leafletMap) return;
 
-   const maxVal = Math.max(...Object.values(obMap));
+   const vals = Object.values(obMap);
+   if (!vals.length) return;
+   const maxVal = Math.max(...vals);
+
    Object.entries(obMap).forEach(([oblast, count]) => {
       const coords = OBLAST_COORDS[oblast];
       if (!coords) return;
@@ -452,6 +498,11 @@ function updateOblastTable(obMap) {
    filteredData.forEach(i => { amountMap[i.oblast] = (amountMap[i.oblast] || 0) + i.amount; });
 
    const tbody = document.getElementById('oblast-table-body');
+   if (!sorted.length) {
+      tbody.innerHTML = `<tr><td colspan="4">Немає даних</td></tr>`;
+      return;
+   }
+
    tbody.innerHTML = sorted.map(([ob, cnt], idx) => {
       const barW = Math.round((cnt / maxPeople) * 80);
       const amt = amountMap[ob] || 0;

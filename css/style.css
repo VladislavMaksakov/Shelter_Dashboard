@@ -174,18 +174,21 @@ header {
 }
 
 .header-logo {
-   height: 44px;
+   height: 72px;
+   width: auto;
    object-fit: contain;
+   display: block;
 }
 
 .shelter-logo {
-   height: 44px;
+   height: 72px;
+   width: auto;
 }
 
 .divider {
-   height: 44px;
-   width: 1px;
-   background-color: #e0e0e0;
+   height: 72px;
+   width: 2px;
+   background-color: #ddd;
 }
 
 .header-title {
@@ -376,16 +379,18 @@ main {
 }
 
 .kpi-icon {
-   background: var(--rais-light-red);
+   background: linear-gradient(135deg, var(--rais-light-red), white);
    color: var(--rais-red);
-   width: 48px;
-   height: 48px;
-   border-radius: 50%;
+   width: 62px;
+   height: 62px;
+   min-width: 62px;
+   border-radius: 18px;
    display: flex;
    align-items: center;
    justify-content: center;
-   font-size: 1.4rem;
+   font-size: 1.6rem;
    flex-shrink: 0;
+   box-shadow: 0 6px 14px rgba(113, 19, 36, 0.12);
 }
 
 .kpi-details h3 {
@@ -454,19 +459,21 @@ main {
 
 canvas {
    width: 100% !important;
-   max-height: 280px;
+   height: 320px !important;
+}
+
+.chart-box {
+   min-height: 400px;
 }
 
 /* MAP */
 .map-box {
-   min-height: 380px;
+   min-height: 450px;
 }
 
 #map {
-   height: 320px;
-   border-radius: 6px;
-   overflow: hidden;
-   z-index: 1;
+   height: 390px;
+   border-radius: 8px;
 }
 
 /* MINI TABLE */
