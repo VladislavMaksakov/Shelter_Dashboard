@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Shelter Cluster Dashboard | Caritas Ukraine</title>
+   <!-- Підключення іконок -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <!-- Підключення бібліотеки для авторизації Google -->
+   <script src="https://accounts.google.com/gsi/client" async defer></script>
+   <!-- Підключення Chart.js для графіків -->
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   <!-- ================= СТИЛІ (CSS) ================= -->
+   <style>
+      :root {
+         --rais-red: #711324;
+         /* Основний колір RAIS+ */
+         --rais-red-hover: #5a0f1d;
+         --rais-light-red: #f8e9eb;
+         --bg-color: #f4f6f9;
+         --text-dark: #333333;
+         --text-muted: #6c757d;
+         --card-bg: #ffffff;
+         --border-radius: 6px;
+         --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+         --transition: all 0.3s ease;
+      }
+
+      * {
+         box-sizing: border-box;
+         margin: 0;
+         padding: 0;
+         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      body {
+         background-color: var(--bg-color);
+         color: var(--text-dark);
+         min-height: 100vh;
+         display: flex;
+         flex-direction: column;
+      }
+
+      /* --- Екран авторизації --- */
+      #auth-screen {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: var(--bg-color);
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         z-index: 9999;
+      }
+
+      .auth-card {
+         background: var(--card-bg);
+         padding: 40px;
+         border-radius: var(--border-radius);
+         box-shadow: var(--shadow);
+         text-align: center;
+         max-width: 450px;
+         width: 90%;
+         border-top: 5px solid var(--rais-red);
+      }
+
+      .auth-card i {
+         color: var(--rais-red);
+         margin-bottom: 20px;
+      }
+
+      .auth-card h2 {
+         margin-bottom: 10px;
+         color: var(--rais-red);
+      }
+
+      .auth-card p {
+         color: var(--text-muted);
+         margin-bottom: 30px;
+         font-size: 0.95rem;
+      }
+
+      .btn-login {
+         background-color: var(--rais-red);
+         color: white;
+         border: none;
+         padding: 12px 24px;
+         font-size: 1rem;
+         font-weight: 600;
+         border-radius: var(--border-radius);
+         cursor: pointer;
+         transition: var(--transition);
+         display: inline-flex;
+         align-items: center;
+         gap: 10px;
+      }
+
+      .btn-login:hover {
+         background-color: var(--rais-red-hover);
+         transform: translateY(-2px);
+      }
+
+      .error-msg {
+         color: #dc3545;
+         margin-top: 15px;
+         font-size: 0.9rem;
+         display: none;
+         background: #ffe6e6;
+         padding: 10px;
+         border-radius: 4px;
+      }
+
+      /* --- Основний дашборд --- */
+      #dashboard-screen {
+         display: none;
+         /* Приховано до авторизації */
+         flex: 1;
+         display: flex;
+         /* Змінюється через JS */
+         flex-direction: column;
+      }
+
+      header {
+         background-color: var(--rais-red);
+         color: white;
+         padding: 15px 30px;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+         position: sticky;
+         top: 0;
+         z-index: 100;
+      }
+
+      .header-left {
+         display: flex;
+         align-items: center;
+         gap: 15px;
+      }
+
+      .header-left h1 {
+         font-size: 1.3rem;
+         font-weight: 400;
+         letter-spacing: 0.5px;
+         border-left: 1px solid rgba(255, 255, 255, 0.3);
+         padding-left: 15px;
+      }
+
+      .header-right {
+         display: flex;
+         align-items: center;
+         gap: 20px;
+      }
+
+      .user-info {
+         font-size: 0.9rem;
+         opacity: 0.9;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+      }
+
+      .user-avatar {
+         background: rgba(255, 255, 255, 0.2);
+         width: 30px;
+         height: 30px;
+         border-radius: 50%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-weight: bold;
+      }
+
+      main {
+         padding: 30px;
+         max-width: 1600px;
+         margin: 0 auto;
+         width: 100%;
+         flex: 1;
+      }
+
+      /* Панель фільтрів */
+      .filters-container {
+         background: var(--card-bg);
+         padding: 20px;
+         border-radius: var(--border-radius);
+         box-shadow: var(--shadow);
+         margin-bottom: 25px;
+         display: flex;
+         gap: 15px;
+         flex-wrap: wrap;
+         align-items: flex-end;
+         border-left: 4px solid var(--rais-red);
+      }
+
+      .filter-group {
+         display: flex;
+         flex-direction: column;
+         gap: 8px;
+         flex: 1;
+         min-width: 180px;
+      }
+
+      .filter-group label {
+         font-size: 0.85rem;
+         font-weight: 600;
+         color: var(--text-muted);
+         text-transform: uppercase;
+         letter-spacing: 0.5px;
+      }
+
+      .filter-group select {
+         padding: 10px;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         background-color: #fff;
+         color: var(--text-dark);
+         outline: none;
+         transition: var(--transition);
+         font-size: 0.95rem;
+      }
+
+      .filter-group select:focus {
+         border-color: var(--rais-red);
+         box-shadow: 0 0 0 2px var(--rais-light-red);
+      }
+
+      .filter-btn {
+         background-color: var(--rais-red);
+         color: white;
+         border: none;
+         padding: 10px 20px;
+         border-radius: 4px;
+         cursor: pointer;
+         height: 42px;
+         font-weight: 600;
+         transition: var(--transition);
+      }
+
+      .filter-btn:hover {
+         background-color: var(--rais-red-hover);
+      }
+
+      /* KPI Картки */
+      .kpi-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+         gap: 20px;
+         margin-bottom: 30px;
+      }
+
+      .kpi-card {
+         background: var(--card-bg);
+         padding: 20px;
+         border-radius: var(--border-radius);
+         box-shadow: var(--shadow);
+         display: flex;
+         align-items: center;
+         gap: 15px;
+         position: relative;
+         overflow: hidden;
+         transition: var(--transition);
+      }
+
+      .kpi-card:hover {
+         transform: translateY(-5px);
+      }
+
+      .kpi-card::before {
+         content: '';
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 4px;
+         height: 100%;
+         background-color: var(--rais-red);
+      }
+
+      .kpi-icon {
+         background: var(--rais-light-red);
+         color: var(--rais-red);
+         width: 50px;
+         height: 50px;
+         border-radius: 50%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 1.5rem;
+      }
+
+      .kpi-details h3 {
+         font-size: 0.85rem;
+         color: var(--text-muted);
+         margin-bottom: 5px;
+         text-transform: uppercase;
+      }
+
+      .kpi-details p {
+         font-size: 1.8rem;
+         font-weight: 700;
+         color: var(--text-dark);
+         line-height: 1;
+      }
+
+      /* Секція графіків */
+      .charts-wrapper {
+         display: grid;
+         grid-template-columns: 2fr 1fr;
+         gap: 20px;
+         margin-bottom: 30px;
+      }
+
+      .charts-row-2 {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 20px;
+      }
+
+      .chart-box {
+         background: var(--card-bg);
+         padding: 20px;
+         border-radius: var(--border-radius);
+         box-shadow: var(--shadow);
+         position: relative;
+      }
+
+      .chart-box h3 {
+         font-size: 1.1rem;
+         color: var(--text-dark);
+         margin-bottom: 15px;
+         padding-bottom: 10px;
+         border-bottom: 1px solid #eee;
+      }
+
+      canvas {
+         width: 100% !important;
+         max-height: 300px;
+      }
+
+      /* Завантажувач */
+      #loader {
+         display: none;
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(255, 255, 255, 0.8);
+         z-index: 1000;
+         justify-content: center;
+         align-items: center;
+         flex-direction: column;
+      }
+
+      .spinner {
+         border: 4px solid #f3f3f3;
+         border-top: 4px solid var(--rais-red);
+         border-radius: 50%;
+         width: 50px;
+         height: 50px;
+         animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+         0% {
+            transform: rotate(0deg);
+         }
+
+         100% {
+            transform: rotate(360deg);
+         }
+      }
+
+      /* Footer */
+      footer {
+         background-color: var(--card-bg);
+         padding: 20px 30px;
+         text-align: center;
+         color: var(--text-muted);
+         font-size: 0.9rem;
+         border-top: 1px solid #ddd;
+         margin-top: auto;
+      }
+
+      footer a {
+         color: var(--rais-red);
+         text-decoration: none;
+      }
+
+      footer strong {
+         color: var(--text-dark);
+      }
+
+      @media (max-width: 900px) {
+         .charts-wrapper {
+            grid-template-columns: 1fr;
+         }
+
+         .charts-row-2 {
+            grid-template-columns: 1fr;
+         }
+      }
+   </style>
+</head>
+
+<body>
+
+   <!-- ================= ЕКРАН АВТОРИЗАЦІЇ ================= -->
+   <div id="auth-screen">
+      <div class="auth-card">
+         <i class="fa-solid fa-shield-halved fa-4x"></i>
+         <h2>Вхід до системи</h2>
+         <p>Shelter Cluster Dashboard<br>Caritas Ukraine</p>
+
+         <button id="auth-btn" class="btn-login">
+            <i class="fa-brands fa-google"></i> Увійти через Google
+         </button>
+         <div id="auth-error" class="error-msg"></div>
+         <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">Доступ дозволено лише для корпоративних доменів
+            @caritas.ua та @cu.caritas.ua</p>
+      </div>
+   </div>
+
+   <!-- Завантажувач -->
+   <div id="loader">
+      <div class="spinner"></div>
+      <p style="margin-top: 15px; font-weight: 600; color: #711324;">Завантаження та обробка даних...</p>
+   </div>
+
+   <!-- ================= ОСНОВНИЙ ДАШБОРД ================= -->
+   <div id="dashboard-screen">
+      <header>
+         <div class="header-left">
+            <i class="fa-solid fa-house-chimney"></i>
+            <h1>GLOBAL SHELTER CLUSTER | RAIS+ Analytics</h1>
+         </div>
+         <div class="header-right">
+            <div class="user-info">
+               <span class="user-avatar" id="user-initials">VM</span>
+               <span id="user-email">vladyslav@caritas.ua</span>
+            </div>
+         </div>
+      </header>
+
+      <main>
+         <!-- Фільтри -->
+         <div class="filters-container">
+            <div class="filter-group">
+               <label>Проєкт</label>
+               <select id="flt-project">
+                  <option value="all">Всі проєкти</option>
+               </select>
+            </div>
+            <div class="filter-group">
+               <label>Вид допомоги</label>
+               <select id="flt-type">
+                  <option value="all">Всі види</option>
+                  <option value="cash">Грошова (Ремонти)</option>
+                  <option value="inkind">Тверде паливо (In-Kind)</option>
+                  <option value="infra">Інфраструктура</option>
+               </select>
+            </div>
+            <div class="filter-group">
+               <label>Область</label>
+               <select id="flt-oblast">
+                  <option value="all">Всі області</option>
+               </select>
+            </div>
+            <div class="filter-group">
+               <label>Рік</label>
+               <select id="flt-year">
+                  <option value="all">Всі роки</option>
+               </select>
+            </div>
+            <button class="filter-btn" onclick="applyFilters()"><i class="fa-solid fa-filter"></i> Застосувати</button>
+            <button class="filter-btn" style="background: #6c757d;" onclick="resetFilters()"><i
+                  class="fa-solid fa-rotate-right"></i></button>
+         </div>
+
+         <!-- KPI Картки -->
+         <div class="kpi-grid">
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-house-user"></i></div>
+               <div class="kpi-details">
+                  <h3>Охоплено домогосподарств</h3>
+                  <p id="kpi-hh">0</p>
+               </div>
+            </div>
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+               <div class="kpi-details">
+                  <h3>Бенефіціари (Особи)</h3>
+                  <p id="kpi-people">0</p>
+               </div>
+            </div>
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-hryvnia-sign"></i></div>
+               <div class="kpi-details">
+                  <h3>Сума допомоги (Грн)</h3>
+                  <p id="kpi-amount">0</p>
+               </div>
+            </div>
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-fire-burner"></i></div>
+               <div class="kpi-details">
+                  <h3>Видано палива (Тонни)</h3>
+                  <p id="kpi-fuel">0</p>
+               </div>
+            </div>
+         </div>
+
+         <!-- Графіки -->
+         <div class="charts-wrapper">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-map-location-dot"></i> Бенефіціари за областями</h3>
+               <canvas id="chartOblasts"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-chart-pie"></i> Демографія</h3>
+               <canvas id="chartDemographics"></canvas>
+            </div>
+         </div>
+
+         <div class="charts-row-2">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (Рік)</h3>
+               <canvas id="chartTimeline"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-box-open"></i> Розподіл палива (Тонни)</h3>
+               <canvas id="chartFuel"></canvas>
+            </div>
+         </div>
+      </main>
+
+      <footer>
+         <strong>&copy; 2026 Shelter Cluster Україна</strong>. Всі права захищені.<br>
+         Система аналітики розроблена для внутрішнього використання <strong>Caritas Ukraine</strong>.<br>
+         <span style="font-size: 0.8rem;">Розробник: Vladyslav Maksakov | <a
+               href="mailto:vladyslav@caritas.ua">vladyslav@caritas.ua</a></span>
+      </footer>
+   </div>
+
+   <!-- ================= JAVASCRIPT ЛОГІКА ================= -->
+   <script>
+      // === КОНФІГУРАЦІЯ ===
+      const CLIENT_ID = '113470943982-eujk6po7pepq3kbhvl8obfs4754vkjts.apps.googleusercontent.com';
+      // ТУТ ВСТАВ ID ТВОЄЇ ТАБЛИЦІ (знаходиться в посиланні між /d/ та /edit)
+      const SPREADSHEET_ID = '1A2xbLM38T74E6o_XjgSn4MiWp3ITIeB99hHVYVhuu18';
+
+      // Аркуші, з яких будемо тягнути дані (можеш додавати сюди RAP пізніше)
+      const SHEET_RANGES = ['RCP_cash!A:T', 'RCP_in_kind!A:V', 'RCP_infrastructures!A:K'];
+
+      // Глобальні змінні
+      let tokenClient;
+      let accessToken = null;
+      let masterData = []; // Усі дані
+      let filteredData = []; // Відфільтровані дані
+
+      // Інстанси графіків
+      let charts = {
+         oblasts: null,
+         demographics: null,
+         timeline: null,
+         fuel: null
+      };
+
+      // Кольори для графіків
+      const colors = {
+         red: '#711324',
+         lightRed: '#a83246',
+         gray: '#6c757d',
+         dark: '#343a40',
+         wood: '#8B4513',
+         briq: '#CD853F',
+         coal: '#2F4F4F'
+      };
+
+      // === ІНІЦІАЛІЗУЄМО GOOGLE AUTH ===
+      window.onload = function () {
+         // Налаштування Chart.js
+         Chart.defaults.font.family = "'Segoe UI', sans-serif";
+         Chart.defaults.color = '#555';
+
+         try {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+               client_id: CLIENT_ID,
+               scope: 'https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.email',
+               callback: handleAuthResponse,
+            });
+         } catch (e) {
+            console.error("GSI library failed to load. Are you offline?", e);
+         }
+
+         document.getElementById('auth-btn').onclick = () => {
+            // Для тестування в Canvas (бо API тут не завжди пускає поп-апи), 
+            // якщо SPREADSHEET_ID ще не вставлений, генеруємо демо-дані.
+            if (SPREADSHEET_ID === 'ТВІЙ_SPREADSHEET_ID') {
+               showDemoMode();
+               return;
+            }
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+         };
+      };
+
+      // Обробка відповіді авторизації
+      async function handleAuthResponse(response) {
+         if (response.error !== undefined) {
+            showError("Помилка авторизації. Спробуйте ще раз.");
+            return;
+         }
+         accessToken = response.access_token;
+
+         try {
+            // 1. Отримуємо email
+            const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+               headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            const userInfo = await userInfoRes.json();
+            const email = userInfo.email.toLowerCase();
+
+            // 2. ПЕРЕВІРКА ДОМЕНУ (Раскоментуй для жорсткої перевірки)
+            /*
+            if (!email.endsWith('@caritas.ua') && !email.endsWith('@cu.caritas.ua')) {
+                showError(`Пошта ${email} не має доступу. Використовуйте @caritas.ua`);
+                return;
+            }
+            */
+
+            // Авторизація успішна
+            document.getElementById('user-email').innerText = email;
+            document.getElementById('user-initials').innerText = email.substring(0, 2).toUpperCase();
+
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'flex'; // Змінено на flex для footer
+            document.getElementById('loader').style.display = 'flex';
+
+            // 3. Завантажуємо дані
+            await fetchSheetsData();
+
+         } catch (err) {
+            showError("Помилка зв'язку з сервером Google.");
+            console.error(err);
+         }
+      }
+
+      function showError(msg) {
+         const errDiv = document.getElementById('auth-error');
+         errDiv.innerText = msg;
+         errDiv.style.display = 'block';
+      }
+
+      // === ЗАВАНТАЖЕННЯ ДАНИХ З GOOGLE SHEETS ===
+      async function fetchSheetsData() {
+         try {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${SHEET_RANGES.join('&ranges=')}`;
+
+            const response = await fetch(url, {
+               headers: { Authorization: `Bearer ${accessToken}` }
+            });
+
+            if (!response.ok) throw new Error("Немає доступу до таблиці. Перевірте SPREADSHEET_ID.");
+
+            const data = await response.json();
+            processRawData(data.valueRanges);
+
+         } catch (err) {
+            console.error(err);
+            alert("Помилка завантаження даних. Перевірте консоль.");
+            document.getElementById('loader').style.display = 'none';
+         }
+      }
+
+      // === ОБРОБКА ДАНИХ ===
+      function processRawData(valueRanges) {
+         masterData = [];
+
+         // 1. RCP_cash
+         if (valueRanges[0].values) {
+            const rows = valueRanges[0].values.slice(1); // Пропускаємо заголовки
+            rows.forEach(r => {
+               if (!r[0]) return;
+               masterData.push({
+                  typeAssistanceGroup: 'cash',
+                  project: r[1] || 'Unknown',
+                  oblast: r[3] || 'Unknown',
+                  hhs: parseInt(r[7]) || 0,
+                  people: parseInt(r[8]) || 0,
+                  women: (parseInt(r[10]) || 0) + (parseInt(r[12]) || 0) + (parseInt(r[14]) || 0),
+                  men: (parseInt(r[11]) || 0) + (parseInt(r[13]) || 0) + (parseInt(r[15]) || 0),
+                  disabled: parseInt(r[16]) || 0,
+                  date: parseDate(r[17]),
+                  amount: parseFloat((r[19] || "0").replace(/\s/g, '').replace(',', '.')) || 0,
+                  fuelTotal: 0, wood: 0, briq: 0, coal: 0
+               });
+            });
+         }
+
+         // 2. RCP_in_kind
+         if (valueRanges[1] && valueRanges[1].values) {
+            const rows = valueRanges[1].values.slice(1);
+            rows.forEach(r => {
+               if (!r[0]) return;
+               const w = parseFloat((r[19] || "0").replace(',', '.')) || 0;
+               const b = parseFloat((r[20] || "0").replace(',', '.')) || 0;
+               const c = parseFloat((r[21] || "0").replace(',', '.')) || 0;
+
+               masterData.push({
+                  typeAssistanceGroup: 'inkind',
+                  project: r[1] || 'Unknown',
+                  oblast: r[3] || 'Unknown',
+                  hhs: parseInt(r[7]) || 0,
+                  people: parseInt(r[8]) || 0,
+                  women: (parseInt(r[10]) || 0) + (parseInt(r[12]) || 0) + (parseInt(r[14]) || 0),
+                  men: (parseInt(r[11]) || 0) + (parseInt(r[13]) || 0) + (parseInt(r[15]) || 0),
+                  disabled: parseInt(r[16]) || 0,
+                  date: parseDate(r[17]),
+                  amount: 0, // У in-kind немає суми в цій таблиці
+                  fuelTotal: w + b + c, wood: w, briq: b, coal: c
+               });
+            });
+         }
+
+         // 3. RCP_infrastructures
+         if (valueRanges[2] && valueRanges[2].values) {
+            const rows = valueRanges[2].values.slice(1);
+            rows.forEach(r => {
+               if (!r[0]) return;
+               masterData.push({
+                  typeAssistanceGroup: 'infra',
+                  project: r[1] || 'Unknown',
+                  oblast: r[3] || 'Unknown',
+                  hhs: 0, // Немає розбивки на домогосподарства
+                  people: parseInt(r[7]) || 0,
+                  women: 0, men: 0, disabled: 0, // Немає точної демографії
+                  date: parseDate(r[8]),
+                  amount: parseFloat((r[10] || "0").replace(/\s/g, '').replace(',', '.')) || 0,
+                  fuelTotal: 0, wood: 0, briq: 0, coal: 0
+               });
+            });
+         }
+
+         filteredData = [...masterData];
+         populateFilters();
+         updateDashboard();
+         document.getElementById('loader').style.display = 'none';
+      }
+
+      // Хелпер для дат (Формат DD.MM.YYYY)
+      function parseDate(dateStr) {
+         if (!dateStr) return null;
+         const parts = dateStr.split('.');
+         if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
+         return null;
+      }
+
+      // === ВІДМАЛЬОВКА ТА ОНОВЛЕННЯ ===
+
+      function populateFilters() {
+         const projects = new Set();
+         const oblasts = new Set();
+         const years = new Set();
+
+         masterData.forEach(item => {
+            projects.add(item.project);
+            oblasts.add(item.oblast);
+            if (item.date) years.add(item.date.getFullYear());
+         });
+
+         const fillSelect = (id, set) => {
+            const select = document.getElementById(id);
+            // Залишаємо "Всі"
+            select.innerHTML = select.options[0].outerHTML;
+            Array.from(set).sort().forEach(val => {
+               select.innerHTML += `<option value="${val}">${val}</option>`;
+            });
+         };
+
+         fillSelect('flt-project', projects);
+         fillSelect('flt-oblast', oblasts);
+         fillSelect('flt-year', years);
+      }
+
+      function applyFilters() {
+         const p = document.getElementById('flt-project').value;
+         const t = document.getElementById('flt-type').value;
+         const o = document.getElementById('flt-oblast').value;
+         const y = document.getElementById('flt-year').value;
+
+         filteredData = masterData.filter(item => {
+            let match = true;
+            if (p !== 'all' && item.project !== p) match = false;
+            if (t !== 'all' && item.typeAssistanceGroup !== t) match = false;
+            if (o !== 'all' && item.oblast !== o) match = false;
+            if (y !== 'all' && (!item.date || item.date.getFullYear().toString() !== y)) match = false;
+            return match;
+         });
+
+         updateDashboard();
+      }
+
+      function resetFilters() {
+         document.getElementById('flt-project').value = 'all';
+         document.getElementById('flt-type').value = 'all';
+         document.getElementById('flt-oblast').value = 'all';
+         document.getElementById('flt-year').value = 'all';
+         filteredData = [...masterData];
+         updateDashboard();
+      }
+
+      function updateDashboard() {
+         // 1. Рахуємо KPI
+         let tHhs = 0, tPeople = 0, tAmount = 0, tFuel = 0;
+
+         // Дані для графіків
+         let obMap = {}, demoMap = { women: 0, men: 0, disabled: 0 };
+         let timeMap = {};
+         let fuelMap = { wood: 0, briq: 0, coal: 0 };
+
+         filteredData.forEach(i => {
+            tHhs += i.hhs;
+            tPeople += i.people;
+            tAmount += i.amount;
+            tFuel += i.fuelTotal;
+
+            // Області (рахуємо по людях)
+            obMap[i.oblast] = (obMap[i.oblast] || 0) + i.people;
+
+            // Демографія
+            demoMap.women += i.women;
+            demoMap.men += i.men;
+            demoMap.disabled += i.disabled;
+
+            // Час (Рік)
+            if (i.date) {
+               const yr = i.date.getFullYear();
+               timeMap[yr] = (timeMap[yr] || 0) + i.people;
+            }
+
+            // Паливо
+            fuelMap.wood += i.wood;
+            fuelMap.briq += i.briq;
+            fuelMap.coal += i.coal;
+         });
+
+         // Анімація цифр
+         animateValue("kpi-hh", tHhs);
+         animateValue("kpi-people", tPeople);
+         animateValue("kpi-amount", tAmount, true); // true для формату валюти
+         animateValue("kpi-fuel", Math.round(tFuel));
+
+         // 2. Оновлення графіків
+         updateChartOblasts(obMap);
+         updateChartDemographics(demoMap);
+         updateChartTimeline(timeMap);
+         updateChartFuel(fuelMap);
+      }
+
+      // Хелпер форматування чисел
+      const numFormat = new Intl.NumberFormat('uk-UA');
+      function animateValue(id, end, isCurrency = false) {
+         const obj = document.getElementById(id);
+         // Спрощена анімація для швидкодії
+         let current = 0;
+         const steps = 20;
+         const stepVal = end / steps;
+
+         clearInterval(obj.timer);
+         obj.timer = setInterval(() => {
+            current += stepVal;
+            if (current >= end) {
+               current = end;
+               clearInterval(obj.timer);
+            }
+            obj.innerText = isCurrency ? current.toLocaleString('uk-UA', { maximumFractionDigits: 0 }) : numFormat.format(Math.round(current));
+         }, 30);
+      }
+
+      // === ЛОГІКА ГРАФІКІВ (CHART.JS) ===
+
+      function updateChartOblasts(dataMap) {
+         const labels = Object.keys(dataMap).sort((a, b) => dataMap[b] - dataMap[a]).slice(0, 10); // Топ 10
+         const values = labels.map(l => dataMap[l]);
+
+         if (charts.oblasts) charts.oblasts.destroy();
+         const ctx = document.getElementById('chartOblasts').getContext('2d');
+         charts.oblasts = new Chart(ctx, {
+            type: 'bar',
+            data: {
+               labels: labels,
+               datasets: [{
+                  label: 'Осіб охоплено',
+                  data: values,
+                  backgroundColor: colors.red,
+                  borderRadius: 4
+               }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+         });
+      }
+
+      function updateChartDemographics(demoMap) {
+         if (charts.demographics) charts.demographics.destroy();
+         const ctx = document.getElementById('chartDemographics').getContext('2d');
+         charts.demographics = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+               labels: ['Жінки/Дівчата', 'Чоловіки/Хлопці', 'Особи з інвалідністю (в т.ч.)'],
+               datasets: [{
+                  data: [demoMap.women, demoMap.men, demoMap.disabled],
+                  backgroundColor: [colors.red, colors.gray, colors.lightRed],
+                  borderWidth: 0
+               }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '65%' }
+         });
+      }
+
+      function updateChartTimeline(timeMap) {
+         const labels = Object.keys(timeMap).sort();
+         const values = labels.map(l => timeMap[l]);
+
+         if (charts.timeline) charts.timeline.destroy();
+         const ctx = document.getElementById('chartTimeline').getContext('2d');
+         charts.timeline = new Chart(ctx, {
+            type: 'line',
+            data: {
+               labels: labels,
+               datasets: [{
+                  label: 'Осіб',
+                  data: values,
+                  borderColor: colors.red,
+                  backgroundColor: 'rgba(113, 19, 36, 0.1)',
+                  fill: true,
+                  tension: 0.3,
+                  pointBackgroundColor: colors.red
+               }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+         });
+      }
+
+      function updateChartFuel(fuelMap) {
+         if (charts.fuel) charts.fuel.destroy();
+         const ctx = document.getElementById('chartFuel').getContext('2d');
+         charts.fuel = new Chart(ctx, {
+            type: 'bar',
+            data: {
+               labels: ['Дрова', 'Брикети', 'Вугілля'],
+               datasets: [{
+                  label: 'Тонни',
+                  data: [fuelMap.wood, fuelMap.briq, fuelMap.coal],
+                  backgroundColor: [colors.wood, colors.briq, colors.coal],
+                  borderRadius: 4
+               }]
+            },
+            options: {
+               responsive: true,
+               maintainAspectRatio: false,
+               indexAxis: 'y', // Горизонтальний бар
+               plugins: { legend: { display: false } }
+            }
+         });
+      }
+
+
+      // ============================================================================
+      // ДЕМО-РЕЖИМ (Спрацьовує, якщо SPREADSHEET_ID не вставлено, для презентації UI)
+      // ============================================================================
+      function showDemoMode() {
+         document.getElementById('auth-screen').style.display = 'none';
+         document.getElementById('dashboard-screen').style.display = 'flex';
+         document.getElementById('user-email').innerText = "demo@caritas.ua";
+
+         // Генеруємо красиві фейкові дані
+         masterData = [];
+         const oblasts = ['Запорізька', 'Миколаївська', 'Дніпропетровська', 'Одеська', 'Харківська'];
+         const projects = ['C4U3', 'UHF-Winterization', 'UNHCR4'];
+
+         for (let i = 0; i < 150; i++) {
+            const p = projects[Math.floor(Math.random() * projects.length)];
+            const o = oblasts[Math.floor(Math.random() * oblasts.length)];
+            const isCash = p === 'C4U3';
+            const isInKind = p === 'UHF-Winterization';
+
+            masterData.push({
+               typeAssistanceGroup: isCash ? 'cash' : (isInKind ? 'inkind' : 'infra'),
+               project: p,
+               oblast: o,
+               hhs: isCash || isInKind ? Math.floor(Math.random() * 5) + 1 : 0,
+               people: Math.floor(Math.random() * 20) + 5,
+               women: Math.floor(Math.random() * 10),
+               men: Math.floor(Math.random() * 10),
+               disabled: Math.floor(Math.random() * 3),
+               date: new Date(2024 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 12), 1),
+               amount: isCash || p === 'UNHCR4' ? Math.floor(Math.random() * 150000) + 20000 : 0,
+               fuelTotal: isInKind ? Math.random() * 20 + 5 : 0,
+               wood: isInKind ? Math.random() * 10 : 0,
+               briq: isInKind ? Math.random() * 10 : 0,
+               coal: 0
+            });
+         }
+
+         filteredData = [...masterData];
+         populateFilters();
+         updateDashboard();
+
+         alert("УВАГА: Це демонстраційний режим. Дані згенеровано випадково. Щоб підключити реальні дані, вставте SPREADSHEET_ID у код.");
+      }
+   </script>
+</body>
+
+</html>
