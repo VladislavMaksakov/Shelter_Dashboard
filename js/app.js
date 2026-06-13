@@ -404,8 +404,41 @@ function updateChartOblasts(dataMap) {
 function updateChartDemographics(demoMap) {
    destroyAndCreate('demographics', 'chartDemographics', {
       type: 'doughnut',
-      data: { labels: ['Жінки', 'Чоловіки'], datasets: [{ data: [demoMap.women, demoMap.men], backgroundColor: [colors.red, colors.gray], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
+      data: {
+         labels: ['Жінки', 'Чоловіки'],
+         datasets: [{
+            data: [
+               demoMap.women,
+               demoMap.men
+            ],
+            backgroundColor: [
+               colors.red,
+               colors.gray
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+         }]
+      },
+      options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         cutout: '68%',
+         layout: {
+            padding: 10
+         },
+         plugins: {
+            legend: {
+               position: 'bottom',
+               labels: {
+                  boxWidth: 12,
+                  padding: 14,
+                  font: {
+                     size: 11
+                  }
+               }
+            }
+         }
+      }
    });
 }
 
@@ -427,29 +460,138 @@ function updateChartFuel(fuelMap) {
 }
 
 function updateChartAssistanceType(dataMap) {
-   const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+   const sorted = Object.entries(dataMap)
+      .sort((a, b) => b[1] - a[1]);
+
    destroyAndCreate('assistanceType', 'chartAssistanceType', {
       type: 'doughnut',
-      data: { labels: sorted.map(e => e[0]), datasets: [{ data: sorted.map(e => e[1]), backgroundColor: colors.palette.slice(0, sorted.length), borderWidth: 2, borderColor: '#fff' }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 14 } } } }
+      data: {
+         labels: sorted.map(e => e[0]),
+         datasets: [{
+            data: sorted.map(e => e[1]),
+            backgroundColor: colors.palette.slice(0, sorted.length),
+            borderWidth: 2,
+            borderColor: '#fff'
+         }]
+      },
+      options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         cutout: '68%',
+         layout: {
+            padding: 10
+         },
+         plugins: {
+            legend: {
+               position: 'bottom',
+               labels: {
+                  boxWidth: 12,
+                  padding: 12,
+                  font: {
+                     size: 11
+                  }
+               }
+            }
+         }
+      }
    });
 }
 
-function updateChartPartners(dataMap) {
-   const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+function updateChartPartners() {
+   const oblastTypeMap = {};
+
+   filteredData.forEach(i => {
+      if (!oblastTypeMap[i.oblast]) {
+         oblastTypeMap[i.oblast] = {};
+      }
+
+      const type = shortenAssistType(i.assistanceType);
+
+      oblastTypeMap[i.oblast][type] =
+         (oblastTypeMap[i.oblast][type] || 0) + i.hhs;
+   });
+
+   const oblasts = Object.keys(oblastTypeMap);
+
+   const allTypes = [...new Set(
+      filteredData.map(i => shortenAssistType(i.assistanceType))
+   )];
+
+   const datasets = allTypes.map((type, idx) => ({
+      label: type,
+      data: oblasts.map(ob => oblastTypeMap[ob][type] || 0),
+      backgroundColor: colors.palette[idx % colors.palette.length],
+      borderRadius: 4
+   }));
+
    destroyAndCreate('partners', 'chartPartners', {
       type: 'bar',
-      data: { labels: sorted.map(e => e[0].replace('Caritas ', '')), datasets: [{ label: 'Осіб', data: sorted.map(e => e[1]), backgroundColor: colors.palette, borderRadius: 5 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 11 } } } } }
+      data: {
+         labels: oblasts,
+         datasets
+      },
+      options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         plugins: {
+            legend: {
+               position: 'bottom'
+            }
+         },
+         scales: {
+            x: {
+               stacked: true
+            },
+            y: {
+               stacked: true
+            }
+         }
+      }
    });
 }
 
 function updateChartPopGroup(dataMap) {
-   const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+   const sorted = Object.entries(dataMap)
+      .sort((a, b) => b[1] - a[1]);
+
    destroyAndCreate('popGroup', 'chartPopGroup', {
       type: 'doughnut',
-      data: { labels: sorted.map(e => e[0]), datasets: [{ data: sorted.map(e => e[1]), backgroundColor: ['#711324', '#a83246', '#c45c73', '#6c757d', '#2874a6', '#2e86c1'], borderWidth: 2, borderColor: '#fff' }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 14 } } } }
+      data: {
+         labels: sorted.map(e => e[0]),
+         datasets: [{
+            data: sorted.map(e => e[1]),
+            backgroundColor: [
+               '#711324',
+               '#a83246',
+               '#c45c73',
+               '#6c757d',
+               '#2874a6',
+               '#2e86c1'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+         }]
+      },
+      options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         cutout: '68%',
+         layout: {
+            padding: 10
+         },
+         plugins: {
+            legend: {
+               position: 'bottom',
+               labels: {
+                  boxWidth: 12,
+                  padding: 12,
+                  font: {
+                     size: 11
+                  }
+               }
+            }
+         }
+      }
    });
 }
 
@@ -567,8 +709,7 @@ function updateMapMarkers(obMap) {
 // === MINI TABLE ===
 const numFormat = new Intl.NumberFormat('uk-UA');
 function updateOblastTable(obMap) {
-   const sorted = Object.entries(obMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
-   const maxPeople = sorted[0]?.[1] || 1;
+   const sorted = Object.entries(obMap).sort((a, b) => b[1] - a[1]); const maxPeople = sorted[0]?.[1] || 1;
    // Also get amount per oblast from filteredData
    const amountMap = {};
    filteredData.forEach(i => { amountMap[i.oblast] = (amountMap[i.oblast] || 0) + i.amount; });

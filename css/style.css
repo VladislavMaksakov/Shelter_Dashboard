@@ -459,11 +459,23 @@ main {
 
 canvas {
    width: 100% !important;
-   height: 320px !important;
+}
+
+#chartDemographics,
+#chartAssistanceType,
+#chartPopGroup {
+   max-width: 240px;
+   max-height: 240px;
+   margin: 0 auto;
 }
 
 .chart-box {
-   min-height: 400px;
+   display: flex;
+   flex-direction: column;
+}
+
+.chart-box canvas {
+   flex-grow: 1;
 }
 
 /* MAP */
@@ -474,6 +486,18 @@ canvas {
 #map {
    height: 590px;
    border-radius: 8px;
+}
+
+.charts-row-map-single {
+   margin-bottom: 22px;
+}
+
+.table-box {
+   min-height: auto;
+}
+
+.mini-table-wrapper {
+   max-height: 700px;
 }
 
 /* MINI TABLE */

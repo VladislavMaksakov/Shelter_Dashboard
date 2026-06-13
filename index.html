@@ -209,7 +209,7 @@
                <canvas id="chartAssistanceType"></canvas>
             </div>
             <div class="chart-box">
-               <h3><i class="fa-solid fa-building-ngo"></i> Бенефіціари за партнерами</h3>
+               <h3><i class="fa-solid fa-layer-group"></i> Розподіл допомоги по областях (домогосподарства)</h3>
             </div>
          </div>
 
@@ -226,35 +226,35 @@
          </div>
 
          <!-- ROW 5: Map + Mini Table -->
-         <div class="charts-row-map">
+         <div class="charts-row-map-single">
             <div class="chart-box map-box">
                <h3><i class="fa-solid fa-earth-europe"></i> Геопросторова карта охоплення</h3>
                <div id="map"></div>
             </div>
-            <div class="chart-box table-box">
-               <h3><i class="fa-solid fa-table"></i> Топ-10 областей</h3>
-               <div class="mini-table-wrapper">
-                  <table class="mini-table" id="oblast-table">
-                     <thead>
-                        <tr>
-                           <th>#</th>
-                           <th>Область</th>
-                           <th>Осіб</th>
-                           <th>Грн</th>
-                        </tr>
-                     </thead>
-                     <tbody id="oblast-table-body"></tbody>
-                  </table>
-               </div>
-            </div>
          </div>
 
-         <!-- ROW 6: Monthly trend line -->
+         <!-- ROW 6: FULL TABLE -->
+         <div class="chart-box chart-full table-box">
+            <h3><i class="fa-solid fa-table"></i> Усі області</h3>
+            <div class="mini-table-wrapper">
+               <table class="mini-table" id="oblast-table">
+                  <thead>
+                     <tr>
+                        <th>#</th>
+                        <th>Область</th>
+                        <th>Осіб</th>
+                        <th>Грн</th>
+                     </tr>
+                  </thead>
+                  <tbody id="oblast-table-body"></tbody>
+               </table>
+            </div>
+         </div>
+         <!-- ROW 7: Monthly trend line -->
          <div class="chart-box chart-full">
             <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
             <canvas id="chartMonthly"></canvas>
          </div>
-
       </main>
 
       <footer>
