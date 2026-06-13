@@ -26,7 +26,7 @@ body {
    flex-direction: column;
 }
 
-/* --- Оновлений екран авторизації --- */
+/* AUTH */
 #auth-screen {
    position: fixed;
    top: 0;
@@ -106,18 +106,17 @@ body {
    justify-content: center;
    gap: 12px;
    width: 100%;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
-.btn-login img.google-logo {
-   width: 20px;
-   height: 20px;
+.btn-login .google-logo {
+   flex-shrink: 0;
 }
 
 .btn-login:hover {
    background-color: #f8f9fa;
    border-color: #ccc;
-   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
    transform: translateY(-1px);
 }
 
@@ -140,20 +139,18 @@ body {
    line-height: 1.4;
 }
 
-/* --- Основний дашборд --- */
+/* DASHBOARD */
 #dashboard-screen {
    display: none;
    flex: 1;
-   display: flex;
    flex-direction: column;
 }
 
-/* Оновлений Header */
+/* HEADER */
 header {
    background-color: var(--card-bg);
-   /* Білий фон для логотипів */
    color: var(--text-dark);
-   padding: 12px 30px;
+   padding: 10px 30px;
    display: flex;
    justify-content: space-between;
    align-items: center;
@@ -161,7 +158,7 @@ header {
    position: sticky;
    top: 0;
    z-index: 100;
-   border-bottom: 2px solid var(--rais-red);
+   border-bottom: 3px solid var(--rais-red);
 }
 
 .header-left {
@@ -177,30 +174,36 @@ header {
 }
 
 .header-logo {
-   height: 40px;
+   height: 44px;
    object-fit: contain;
 }
 
+.shelter-logo {
+   height: 44px;
+}
+
 .divider {
-   height: 40px;
+   height: 44px;
    width: 1px;
    background-color: #e0e0e0;
 }
 
 .header-title {
-   font-size: 1.2rem;
-   font-weight: 600;
+   font-size: 1.15rem;
+   font-weight: 700;
    color: var(--rais-red);
-   letter-spacing: 0.5px;
+   letter-spacing: 0.3px;
    display: flex;
    flex-direction: column;
 }
 
 .header-title span {
-   font-size: 0.75rem;
+   font-size: 0.72rem;
    color: var(--text-muted);
    font-weight: 400;
    text-transform: uppercase;
+   letter-spacing: 0.8px;
+   margin-top: 2px;
 }
 
 .header-right {
@@ -209,7 +212,6 @@ header {
    gap: 25px;
 }
 
-/* Перемикач мов */
 .lang-switcher {
    display: flex;
    gap: 5px;
@@ -256,23 +258,24 @@ header {
    border: 1px solid rgba(113, 19, 36, 0.2);
 }
 
+/* MAIN */
 main {
-   padding: 30px;
-   max-width: 1600px;
+   padding: 25px 30px;
+   max-width: 1700px;
    margin: 0 auto;
    width: 100%;
    flex: 1;
 }
 
-/* Панель фільтрів */
+/* FILTERS */
 .filters-container {
    background: var(--card-bg);
-   padding: 20px;
+   padding: 18px 20px;
    border-radius: var(--border-radius);
    box-shadow: var(--shadow);
    margin-bottom: 25px;
    display: flex;
-   gap: 15px;
+   gap: 12px;
    flex-wrap: wrap;
    align-items: flex-end;
    border-left: 4px solid var(--rais-red);
@@ -281,13 +284,13 @@ main {
 .filter-group {
    display: flex;
    flex-direction: column;
-   gap: 8px;
+   gap: 6px;
    flex: 1;
-   min-width: 180px;
+   min-width: 160px;
 }
 
 .filter-group label {
-   font-size: 0.85rem;
+   font-size: 0.78rem;
    font-weight: 600;
    color: var(--text-muted);
    text-transform: uppercase;
@@ -295,14 +298,14 @@ main {
 }
 
 .filter-group select {
-   padding: 10px;
+   padding: 9px 10px;
    border: 1px solid #ddd;
    border-radius: 4px;
    background-color: #fff;
    color: var(--text-dark);
    outline: none;
    transition: var(--transition);
-   font-size: 0.95rem;
+   font-size: 0.9rem;
 }
 
 .filter-group select:focus {
@@ -314,29 +317,39 @@ main {
    background-color: var(--rais-red);
    color: white;
    border: none;
-   padding: 10px 20px;
+   padding: 9px 18px;
    border-radius: 4px;
    cursor: pointer;
-   height: 42px;
+   height: 39px;
    font-weight: 600;
    transition: var(--transition);
+   font-size: 0.9rem;
+   white-space: nowrap;
 }
 
 .filter-btn:hover {
    background-color: var(--rais-red-hover);
 }
 
-/* KPI Картки */
+.reset-btn {
+   background: #6c757d;
+}
+
+.reset-btn:hover {
+   background: #545b62;
+}
+
+/* KPI */
 .kpi-grid {
    display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-   gap: 20px;
-   margin-bottom: 30px;
+   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+   gap: 18px;
+   margin-bottom: 25px;
 }
 
 .kpi-card {
    background: var(--card-bg);
-   padding: 20px;
+   padding: 18px 20px;
    border-radius: var(--border-radius);
    box-shadow: var(--shadow);
    display: flex;
@@ -348,7 +361,8 @@ main {
 }
 
 .kpi-card:hover {
-   transform: translateY(-5px);
+   transform: translateY(-4px);
+   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 .kpi-card::before {
@@ -364,41 +378,51 @@ main {
 .kpi-icon {
    background: var(--rais-light-red);
    color: var(--rais-red);
-   width: 50px;
-   height: 50px;
+   width: 48px;
+   height: 48px;
    border-radius: 50%;
    display: flex;
    align-items: center;
    justify-content: center;
-   font-size: 1.5rem;
+   font-size: 1.4rem;
+   flex-shrink: 0;
 }
 
 .kpi-details h3 {
-   font-size: 0.85rem;
+   font-size: 0.78rem;
    color: var(--text-muted);
-   margin-bottom: 5px;
+   margin-bottom: 4px;
    text-transform: uppercase;
+   letter-spacing: 0.3px;
 }
 
 .kpi-details p {
-   font-size: 1.8rem;
+   font-size: 1.7rem;
    font-weight: 700;
    color: var(--text-dark);
    line-height: 1;
 }
 
-/* Секція графіків */
+/* CHARTS */
 .charts-wrapper {
    display: grid;
    grid-template-columns: 2fr 1fr;
    gap: 20px;
-   margin-bottom: 30px;
+   margin-bottom: 22px;
 }
 
 .charts-row-2 {
    display: grid;
    grid-template-columns: 1fr 1fr;
    gap: 20px;
+   margin-bottom: 22px;
+}
+
+.charts-row-map {
+   display: grid;
+   grid-template-columns: 1.6fr 1fr;
+   gap: 20px;
+   margin-bottom: 22px;
 }
 
 .chart-box {
@@ -409,20 +433,110 @@ main {
    position: relative;
 }
 
+.chart-full {
+   margin-bottom: 22px;
+}
+
 .chart-box h3 {
-   font-size: 1.1rem;
+   font-size: 1rem;
    color: var(--text-dark);
    margin-bottom: 15px;
    padding-bottom: 10px;
    border-bottom: 1px solid #eee;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.chart-box h3 i {
+   color: var(--rais-red);
 }
 
 canvas {
    width: 100% !important;
-   max-height: 300px;
+   max-height: 280px;
 }
 
-/* Завантажувач */
+/* MAP */
+.map-box {
+   min-height: 380px;
+}
+
+#map {
+   height: 320px;
+   border-radius: 6px;
+   overflow: hidden;
+   z-index: 1;
+}
+
+/* MINI TABLE */
+.table-box {
+   overflow: hidden;
+}
+
+.mini-table-wrapper {
+   overflow-y: auto;
+   max-height: 320px;
+}
+
+.mini-table {
+   width: 100%;
+   border-collapse: collapse;
+   font-size: 0.875rem;
+}
+
+.mini-table thead th {
+   background: var(--rais-red);
+   color: white;
+   padding: 9px 12px;
+   text-align: left;
+   font-weight: 600;
+   font-size: 0.78rem;
+   text-transform: uppercase;
+   letter-spacing: 0.4px;
+   position: sticky;
+   top: 0;
+}
+
+.mini-table tbody tr {
+   border-bottom: 1px solid #f0f0f0;
+   transition: background 0.15s;
+}
+
+.mini-table tbody tr:hover {
+   background: var(--rais-light-red);
+}
+
+.mini-table tbody td {
+   padding: 8px 12px;
+   color: var(--text-dark);
+}
+
+.mini-table tbody td:first-child {
+   font-weight: 700;
+   color: var(--rais-red);
+   width: 28px;
+}
+
+.mini-table tbody td.num {
+   font-weight: 600;
+   font-variant-numeric: tabular-nums;
+}
+
+.rank-bar {
+   display: flex;
+   align-items: center;
+   gap: 6px;
+}
+
+.rank-bar-fill {
+   height: 4px;
+   background: var(--rais-red);
+   border-radius: 2px;
+   opacity: 0.4;
+}
+
+/* LOADER */
 #loader {
    display: none;
    position: fixed;
@@ -430,7 +544,7 @@ canvas {
    left: 0;
    width: 100%;
    height: 100%;
-   background: rgba(255, 255, 255, 0.9);
+   background: rgba(255, 255, 255, 0.92);
    z-index: 1000;
    justify-content: center;
    align-items: center;
@@ -456,7 +570,7 @@ canvas {
    }
 }
 
-/* Footer */
+/* FOOTER */
 footer {
    background-color: var(--card-bg);
    padding: 20px 30px;
@@ -476,18 +590,24 @@ footer strong {
    color: var(--text-dark);
 }
 
-@media (max-width: 900px) {
-   .charts-wrapper {
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+   .charts-row-map {
       grid-template-columns: 1fr;
    }
+}
 
-   .charts-row-2 {
+@media (max-width: 900px) {
+
+   .charts-wrapper,
+   .charts-row-2,
+   .charts-row-map {
       grid-template-columns: 1fr;
    }
 
    header {
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
       align-items: flex-start;
    }
 

@@ -5,23 +5,17 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Shelter Cluster Dashboard | Caritas Ukraine</title>
-
-   <!-- Підключення іконок FontAwesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-   <!-- Підключення зовнішніх стилів -->
    <link rel="stylesheet" href="css/style.css">
-
-   <!-- Підключення бібліотеки для авторизації Google -->
    <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-   <!-- Підключення Chart.js для графіків -->
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
 
-   <!-- ================= ЕКРАН АВТОРИЗАЦІЇ ================= -->
+   <!-- ================= AUTH SCREEN ================= -->
    <div id="auth-screen">
       <div class="auth-card">
          <div class="auth-icon-wrapper">
@@ -31,9 +25,17 @@
          <p class="subtitle">Shelter Cluster Dashboard<br>Caritas Ukraine Analytics</p>
 
          <button id="auth-btn" class="btn-login">
-            <!-- SVG логотип Google для красивої кнопки -->
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo"
-               class="google-logo">
+            <svg class="google-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
+               <path fill="#EA4335"
+                  d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+               <path fill="#4285F4"
+                  d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+               <path fill="#FBBC05"
+                  d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+               <path fill="#34A853"
+                  d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+               <path fill="none" d="M0 0h48v48H0z" />
+            </svg>
             Продовжити з Google
          </button>
 
@@ -49,27 +51,25 @@
       </div>
    </div>
 
-   <!-- Завантажувач -->
+   <!-- Loader -->
    <div id="loader">
       <div class="spinner"></div>
       <p style="margin-top: 15px; font-weight: 600; color: #711324;">Завантаження та обробка даних...</p>
    </div>
 
-   <!-- ================= ОСНОВНИЙ ДАШБОРД ================= -->
+   <!-- ================= MAIN DASHBOARD ================= -->
    <div id="dashboard-screen">
       <header>
          <div class="header-left">
             <div class="logos-container">
-               <!-- Заміни src на посилання на твої реальні логотипи -->
                <img src="https://caritas.ua/wp-content/themes/caritas/img/logo.svg" alt="Caritas Ukraine"
                   class="header-logo" onerror="this.src='assets/CU.jpeg'">
                <div class="divider"></div>
                <img src="https://sheltercluster.org/sites/default/files/Shelter%20Cluster%20Logo.png"
-                  alt="Global Shelter Cluster" class="header-logo" style="height: 35px;"
-                  onerror="this.src='assets/GSC.jpg'">
+                  alt="Global Shelter Cluster" class="header-logo shelter-logo" onerror="this.src='assets/GSC.jpg'">
             </div>
             <div class="header-title">
-               RAIS+ Analytics
+               Global Shelter Cluster
                <span>Система моніторингу допомоги</span>
             </div>
          </div>
@@ -79,7 +79,6 @@
                <button class="lang-btn active">UK</button>
                <button class="lang-btn">EN</button>
             </div>
-
             <div class="user-info">
                <span id="user-email">user@caritas.ua</span>
                <span class="user-avatar" id="user-initials">US</span>
@@ -88,7 +87,7 @@
       </header>
 
       <main>
-         <!-- Фільтри -->
+         <!-- FILTERS -->
          <div class="filters-container">
             <div class="filter-group">
                <label>Проєкт</label>
@@ -97,12 +96,18 @@
                </select>
             </div>
             <div class="filter-group">
-               <label>Вид допомоги</label>
+               <label>Тип допомоги (Група)</label>
                <select id="flt-type">
                   <option value="all">Всі види</option>
-                  <option value="cash">Грошова (Ремонти)</option>
+                  <option value="cash">Грошова / Ваучер (Ремонти)</option>
                   <option value="inkind">Тверде паливо (In-Kind)</option>
                   <option value="infra">Інфраструктура</option>
+               </select>
+            </div>
+            <div class="filter-group">
+               <label>Вид допомоги (Деталь)</label>
+               <select id="flt-assistance-type">
+                  <option value="all">Всі</option>
                </select>
             </div>
             <div class="filter-group">
@@ -112,17 +117,29 @@
                </select>
             </div>
             <div class="filter-group">
+               <label>Партнер</label>
+               <select id="flt-partner">
+                  <option value="all">Всі партнери</option>
+               </select>
+            </div>
+            <div class="filter-group">
+               <label>Група населення</label>
+               <select id="flt-popgroup">
+                  <option value="all">Всі групи</option>
+               </select>
+            </div>
+            <div class="filter-group">
                <label>Рік</label>
                <select id="flt-year">
                   <option value="all">Всі роки</option>
                </select>
             </div>
             <button class="filter-btn" onclick="applyFilters()"><i class="fa-solid fa-filter"></i> Застосувати</button>
-            <button class="filter-btn" style="background: #6c757d;" onclick="resetFilters()"><i
+            <button class="filter-btn reset-btn" onclick="resetFilters()"><i
                   class="fa-solid fa-rotate-right"></i></button>
          </div>
 
-         <!-- KPI Картки -->
+         <!-- KPI CARDS -->
          <div class="kpi-grid">
             <div class="kpi-card">
                <div class="kpi-icon"><i class="fa-solid fa-house-user"></i></div>
@@ -152,23 +169,38 @@
                   <p id="kpi-fuel">0</p>
                </div>
             </div>
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-handshake-angle"></i></div>
+               <div class="kpi-details">
+                  <h3>Активних партнерів</h3>
+                  <p id="kpi-partners">0</p>
+               </div>
+            </div>
+            <div class="kpi-card">
+               <div class="kpi-icon"><i class="fa-solid fa-wheelchair"></i></div>
+               <div class="kpi-details">
+                  <h3>Особи з інвалідністю</h3>
+                  <p id="kpi-disabled">0</p>
+               </div>
+            </div>
          </div>
 
-         <!-- Графіки -->
+         <!-- ROW 1: Oblasts bar + Demographics doughnut -->
          <div class="charts-wrapper">
             <div class="chart-box">
                <h3><i class="fa-solid fa-map-location-dot"></i> Бенефіціари за областями</h3>
                <canvas id="chartOblasts"></canvas>
             </div>
             <div class="chart-box">
-               <h3><i class="fa-solid fa-chart-pie"></i> Демографія</h3>
+               <h3><i class="fa-solid fa-chart-pie"></i> Демографія (стать)</h3>
                <canvas id="chartDemographics"></canvas>
             </div>
          </div>
 
+         <!-- ROW 2: Timeline + Fuel -->
          <div class="charts-row-2">
             <div class="chart-box">
-               <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (Рік)</h3>
+               <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (по роках)</h3>
                <canvas id="chartTimeline"></canvas>
             </div>
             <div class="chart-box">
@@ -176,6 +208,61 @@
                <canvas id="chartFuel"></canvas>
             </div>
          </div>
+
+         <!-- ROW 3: Type of assistance doughnut + Partner bar -->
+         <div class="charts-row-2">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-tags"></i> Розподіл за типом допомоги</h3>
+               <canvas id="chartAssistanceType"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-building-ngo"></i> Бенефіціари за партнерами</h3>
+               <canvas id="chartPartners"></canvas>
+            </div>
+         </div>
+
+         <!-- ROW 4: Population group doughnut + Age breakdown stacked bar -->
+         <div class="charts-row-2">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-people-group"></i> Групи населення</h3>
+               <canvas id="chartPopGroup"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-chart-bar"></i> Вікові групи (Ж/Ч)</h3>
+               <canvas id="chartAge"></canvas>
+            </div>
+         </div>
+
+         <!-- ROW 5: Map + Mini Table -->
+         <div class="charts-row-map">
+            <div class="chart-box map-box">
+               <h3><i class="fa-solid fa-earth-europe"></i> Геопросторова карта охоплення</h3>
+               <div id="map"></div>
+            </div>
+            <div class="chart-box table-box">
+               <h3><i class="fa-solid fa-table"></i> Топ-10 областей</h3>
+               <div class="mini-table-wrapper">
+                  <table class="mini-table" id="oblast-table">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Область</th>
+                           <th>Осіб</th>
+                           <th>Грн</th>
+                        </tr>
+                     </thead>
+                     <tbody id="oblast-table-body"></tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+
+         <!-- ROW 6: Monthly trend line -->
+         <div class="chart-box chart-full">
+            <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
+            <canvas id="chartMonthly"></canvas>
+         </div>
+
       </main>
 
       <footer>
@@ -186,7 +273,6 @@
       </footer>
    </div>
 
-   <!-- Підключення зовнішнього JS файлу -->
    <script src="js/app.js"></script>
 </body>
 
