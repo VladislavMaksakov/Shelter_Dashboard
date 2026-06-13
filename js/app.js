@@ -274,6 +274,7 @@ function updateDashboard() {
    let obMap = {}, demoMap = { women: 0, men: 0 }, ageMap = { w017: 0, m017: 0, w1859: 0, m1859: 0, w60: 0, m60: 0 };
    let timeMap = {}, fuelMap = { wood: 0, briq: 0, coal: 0 };
    let assistTypeMap = {}, partnerMap = {}, popGroupMap = {}, partnerSet = new Set();
+   let partnerMap = {}, popGroupMap = {};
    let monthMap = {};
 
    filteredData.forEach(i => {
@@ -299,7 +300,6 @@ function updateDashboard() {
       assistTypeMap[atLabel] = (assistTypeMap[atLabel] || 0) + i.people;
 
       partnerMap[i.partner] = (partnerMap[i.partner] || 0) + i.people;
-      partnerSet.add(i.partner);
 
       if (i.popGroup !== 'Unknown') popGroupMap[i.popGroup] = (popGroupMap[i.popGroup] || 0) + i.people;
    });
@@ -311,14 +311,12 @@ function updateDashboard() {
    kpiCards[1].style.display = tPeople ? 'flex' : 'none';
    kpiCards[2].style.display = tAmount ? 'flex' : 'none';
    kpiCards[3].style.display = tFuel ? 'flex' : 'none';
-   kpiCards[4].style.display = partnerSet.size ? 'flex' : 'none';
    kpiCards[5].style.display = tDisabled ? 'flex' : 'none';
 
    if (tHhs) animateValue('kpi-hh', tHhs);
    if (tPeople) animateValue('kpi-people', tPeople);
    if (tAmount) animateValue('kpi-amount', tAmount, true);
    if (tFuel) animateValue('kpi-fuel', Math.round(tFuel));
-   if (partnerSet.size) animateValue('kpi-partners', partnerSet.size);
    if (tDisabled) animateValue('kpi-disabled', tDisabled);
 
    // Charts
@@ -460,29 +458,86 @@ function updateChartMonthly(monthMap) {
 // === MAP ===
 function initMap() {
    if (leafletMap) return;
-   leafletMap = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([48.8, 32.5], 5);
-   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap, © CARTO', maxZoom: 10
-   }).addTo(leafletMap);
+
+   const ukraineBounds = [
+      [44.2, 22.0],
+      [52.5, 40.5]
+   ];
+
+   leafletMap = L.map('map', {
+      zoomControl: true,
+      scrollWheelZoom: true,
+      maxBounds: ukraineBounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: 6,
+      maxZoom: 9
+   }).setView([48.8, 31.5], 6);
+
+   L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      {
+         attribution: '© OpenStreetMap, © CARTO'
+      }
+   ).addTo(leafletMap);
 }
 
 function updateMapMarkers(obMap) {
    mapMarkers.forEach(m => leafletMap.removeLayer(m));
    mapMarkers = [];
+
    if (!leafletMap) return;
 
    const vals = Object.values(obMap);
    if (!vals.length) return;
+
    const maxVal = Math.max(...vals);
 
    Object.entries(obMap).forEach(([oblast, count]) => {
       const coords = OBLAST_COORDS[oblast];
       if (!coords) return;
-      const r = Math.max(12, Math.min(45, (count / maxVal) * 45));
+
+      const oblastData = filteredData.filter(i => i.oblast === oblast);
+
+      let women = 0;
+      let men = 0;
+      let types = {};
+
+      oblastData.forEach(i => {
+         women += i.w017 + i.w1859 + i.w60;
+         men += i.m017 + i.m1859 + i.m60;
+
+         const type = shortenAssistType(i.assistanceType);
+         types[type] = (types[type] || 0) + i.people;
+      });
+
+      const typeList = Object.entries(types)
+         .map(([t, c]) => `• ${t}: ${numFormat.format(c)}`)
+         .join('<br>');
+
+      const r = Math.max(15, Math.min(55, (count / maxVal) * 55));
+
       const marker = L.circleMarker(coords, {
-         radius: r, fillColor: colors.red, fillOpacity: 0.65,
-         color: '#fff', weight: 2, opacity: 1
-      }).bindTooltip(`<strong>${oblast}</strong><br>${numFormat.format(count)} осіб`, { permanent: false, direction: 'top' });
+         radius: r,
+         fillColor: colors.red,
+         fillOpacity: 0.65,
+         color: '#fff',
+         weight: 2
+      }).bindTooltip(`
+         <div style="min-width:220px;">
+            <strong>${oblast}</strong><br><br>
+
+            <strong>Всього:</strong> ${numFormat.format(count)} осіб<br>
+            <strong>Жінки:</strong> ${numFormat.format(women)}<br>
+            <strong>Чоловіки:</strong> ${numFormat.format(men)}<br><br>
+
+            <strong>Види допомоги:</strong><br>
+            ${typeList}
+         </div>
+      `, {
+         direction: 'top',
+         sticky: true
+      });
+
       marker.addTo(leafletMap);
       mapMarkers.push(marker);
    });
