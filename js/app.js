@@ -271,10 +271,34 @@ function resetFilters() {
 // === DASHBOARD UPDATE ===
 function updateDashboard() {
    let tHhs = 0, tPeople = 0, tAmount = 0, tFuel = 0, tDisabled = 0;
-   let obMap = {}, demoMap = { women: 0, men: 0 }, ageMap = { w017: 0, m017: 0, w1859: 0, m1859: 0, w60: 0, m60: 0 };
-   let timeMap = {}, fuelMap = { wood: 0, briq: 0, coal: 0 };
-   let assistTypeMap = {}, partnerMap = {}, popGroupMap = {}, partnerSet = new Set();
-   let partnerMap = {}, popGroupMap = {};
+
+   let obMap = {};
+
+   let demoMap = {
+      women: 0,
+      men: 0
+   };
+
+   let ageMap = {
+      w017: 0,
+      m017: 0,
+      w1859: 0,
+      m1859: 0,
+      w60: 0,
+      m60: 0
+   };
+
+   let timeMap = {};
+
+   let fuelMap = {
+      wood: 0,
+      briq: 0,
+      coal: 0
+   };
+
+   let assistTypeMap = {};
+   let partnerMap = {};
+   let popGroupMap = {};
    let monthMap = {};
 
    filteredData.forEach(i => {
@@ -307,11 +331,11 @@ function updateDashboard() {
    // KPIs
    const kpiCards = document.querySelectorAll('.kpi-card');
 
-   kpiCards[0].style.display = tHhs ? 'flex' : 'none';
-   kpiCards[1].style.display = tPeople ? 'flex' : 'none';
-   kpiCards[2].style.display = tAmount ? 'flex' : 'none';
-   kpiCards[3].style.display = tFuel ? 'flex' : 'none';
-   kpiCards[5].style.display = tDisabled ? 'flex' : 'none';
+   if (kpiCards[0]) kpiCards[0].style.display = tHhs ? 'flex' : 'none';
+   if (kpiCards[1]) kpiCards[1].style.display = tPeople ? 'flex' : 'none';
+   if (kpiCards[2]) kpiCards[2].style.display = tAmount ? 'flex' : 'none';
+   if (kpiCards[3]) kpiCards[3].style.display = tFuel ? 'flex' : 'none';
+   if (kpiCards[4]) kpiCards[4].style.display = tDisabled ? 'flex' : 'none';
 
    if (tHhs) animateValue('kpi-hh', tHhs);
    if (tPeople) animateValue('kpi-people', tPeople);
