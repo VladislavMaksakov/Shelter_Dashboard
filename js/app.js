@@ -428,7 +428,7 @@ function updateChartDemographics(demoMap) {
          },
          plugins: {
             legend: {
-               position: 'bottom',
+               position: 'right', // ЗМІНЕНО: легенда праворуч
                labels: {
                   boxWidth: 12,
                   padding: 14,
@@ -483,7 +483,7 @@ function updateChartAssistanceType(dataMap) {
          },
          plugins: {
             legend: {
-               position: 'bottom',
+               position: 'right', // ЗМІНЕНО: легенда праворуч
                labels: {
                   boxWidth: 12,
                   padding: 12,
@@ -581,7 +581,7 @@ function updateChartPopGroup(dataMap) {
          },
          plugins: {
             legend: {
-               position: 'bottom',
+               position: 'right', // ЗМІНЕНО: легенда праворуч
                labels: {
                   boxWidth: 12,
                   padding: 12,
