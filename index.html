@@ -7,6 +7,29 @@
    <title>Shelter Cluster Dashboard | Caritas Ukraine</title>
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
+
+   <style>
+      .kpi-card {
+         padding: 12px 16px !important;
+         gap: 12px !important;
+      }
+
+      .kpi-icon {
+         width: 46px !important;
+         height: 46px !important;
+         min-width: 46px !important;
+         font-size: 1.3rem !important;
+      }
+
+      .kpi-details p {
+         font-size: 1.35rem !important;
+      }
+
+      .mini-table-wrapper {
+         max-height: none !important;
+      }
+   </style>
+
    <script src="https://accounts.google.com/gsi/client" async defer></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -15,7 +38,6 @@
 
 <body>
 
-   <!-- ================= AUTH SCREEN ================= -->
    <div id="auth-screen">
       <div class="auth-card">
          <div class="auth-icon-wrapper">
@@ -51,19 +73,17 @@
       </div>
    </div>
 
-   <!-- Loader -->
    <div id="loader">
       <div class="spinner"></div>
       <p style="margin-top: 15px; font-weight: 600; color: #711324;">Завантаження та обробка даних...</p>
    </div>
 
-   <!-- ================= MAIN DASHBOARD ================= -->
    <div id="dashboard-screen">
       <header>
          <div class="header-left">
             <div class="logos-container">
                <img src="https://caritas.ua/wp-content/themes/caritas/img/logo.svg" alt="Caritas Ukraine"
-                  class="header-logo" onerror="this.src='assets/CU.jpeg'">
+                  class="header-logo" onerror="this.src='assets/CU.png'">
                <div class="divider"></div>
                <img src="https://sheltercluster.org/sites/default/files/Shelter%20Cluster%20Logo.png"
                   alt="Global Shelter Cluster" class="header-logo shelter-logo" onerror="this.src='assets/GSC.jpg'">
@@ -87,7 +107,6 @@
       </header>
 
       <main>
-         <!-- FILTERS -->
          <div class="filters-container">
             <div class="filter-group">
                <label>Проєкт</label>
@@ -139,7 +158,6 @@
                   class="fa-solid fa-rotate-right"></i></button>
          </div>
 
-         <!-- KPI CARDS -->
          <div class="kpi-grid">
             <div class="kpi-card">
                <div class="kpi-icon"><i class="fa-solid fa-house-user"></i></div>
@@ -178,7 +196,6 @@
             </div>
          </div>
 
-         <!-- ROW 1: Oblasts bar + Demographics doughnut -->
          <div class="charts-wrapper">
             <div class="chart-box">
                <h3><i class="fa-solid fa-map-location-dot"></i> Бенефіціари за областями</h3>
@@ -190,7 +207,6 @@
             </div>
          </div>
 
-         <!-- ROW 2: Timeline + Fuel -->
          <div class="charts-row-2">
             <div class="chart-box">
                <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (по роках)</h3>
@@ -202,7 +218,6 @@
             </div>
          </div>
 
-         <!-- ROW 3: Type of assistance doughnut + Partner bar -->
          <div class="charts-row-2">
             <div class="chart-box">
                <h3><i class="fa-solid fa-tags"></i> Розподіл за типом допомоги</h3>
@@ -210,10 +225,10 @@
             </div>
             <div class="chart-box">
                <h3><i class="fa-solid fa-layer-group"></i> Розподіл допомоги по областях (домогосподарства)</h3>
+               <canvas id="chartPartners"></canvas>
             </div>
          </div>
 
-         <!-- ROW 4: Population group doughnut + Age breakdown stacked bar -->
          <div class="charts-row-2">
             <div class="chart-box">
                <h3><i class="fa-solid fa-people-group"></i> Групи населення</h3>
@@ -225,7 +240,6 @@
             </div>
          </div>
 
-         <!-- ROW 5: Map + Mini Table -->
          <div class="charts-row-map-single">
             <div class="chart-box map-box">
                <h3><i class="fa-solid fa-earth-europe"></i> Геопросторова карта охоплення</h3>
@@ -233,7 +247,6 @@
             </div>
          </div>
 
-         <!-- ROW 6: FULL TABLE -->
          <div class="chart-box chart-full table-box">
             <h3><i class="fa-solid fa-table"></i> Усі області</h3>
             <div class="mini-table-wrapper">
@@ -250,7 +263,6 @@
                </table>
             </div>
          </div>
-         <!-- ROW 7: Monthly trend line -->
          <div class="chart-box chart-full">
             <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
             <canvas id="chartMonthly"></canvas>
