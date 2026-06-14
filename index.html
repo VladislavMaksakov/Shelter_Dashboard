@@ -28,35 +28,69 @@
 
       /* 2. Рятуємо сітку від розтягування графіками */
       .charts-wrapper,
-      .charts-row-2,
-      .charts-row-map-single {
+      .charts-row-2 {
          display: flex !important;
          flex-wrap: wrap !important;
          align-items: flex-start !important;
-         /* Головний фікс: блоки більше не тягнуть сусідів по висоті! */
          gap: 20px;
+         margin-bottom: 20px;
+      }
+
+      /* 3. РЯДОК НА 3 КОЛОНКИ ДЛЯ БУБЛИКІВ */
+      .charts-row-3 {
+         display: flex !important;
+         flex-wrap: wrap !important;
+         align-items: flex-start !important;
+         gap: 20px;
+         margin-bottom: 20px;
+      }
+
+      .charts-row-3 .chart-box {
+         flex: 1 1 calc(33.333% - 20px) !important;
+         min-width: 250px !important;
+         /* На мобілках стануть один під одним */
+      }
+
+      .charts-row-3 canvas {
+         min-height: 260px !important;
+         /* Даємо бубликам висоту, щоб були великими */
       }
 
       .chart-box {
          flex: 1 1 calc(50% - 20px) !important;
          min-width: 300px !important;
-         /* На телефонах буде переноситися в колонку */
          box-sizing: border-box;
       }
 
-      .chart-full,
-      .map-box {
+      .chart-full {
          flex: 1 1 100% !important;
-         /* Карта і таблиця на всю ширину */
       }
 
       .chart-box canvas {
-         max-height: 400px !important;
-         /* Графіки не ростимуть безкінечно і не ламатимуть екран */
+         max-height: 350px !important;
          width: 100% !important;
       }
 
-      /* 3. Таблиця: адекватна висота, щоб був скрол для всіх областей */
+      /* 4. ФІКС МАПИ (на всю ширину) */
+      .charts-row-map-single {
+         display: block !important;
+         /* Вимикаємо флекс, щоб блок точно зайняв 100% */
+         width: 100%;
+         margin-bottom: 20px;
+      }
+
+      .map-box {
+         width: 100% !important;
+      }
+
+      #map {
+         width: 100% !important;
+         height: 450px !important;
+         border-radius: var(--border-radius);
+         z-index: 1;
+      }
+
+      /* 5. Таблиця */
       .mini-table-wrapper {
          max-height: 450px !important;
          overflow-y: auto !important;
@@ -97,12 +131,6 @@
          <div id="auth-error" class="error-msg">
             <i class="fa-solid fa-circle-exclamation"></i> <span id="error-text">Помилка</span>
          </div>
-
-         <p class="auth-footer-text">
-            Система призначена для внутрішнього використання.<br>
-            Доступ дозволено для доменів:<br>
-            <strong>@caritas.ua, @cu.caritas.ua, @db.caritas.ua</strong>
-         </p>
       </div>
    </div>
 
@@ -128,10 +156,6 @@
          </div>
 
          <div class="header-right">
-            <div class="lang-switcher">
-               <button class="lang-btn active">UK</button>
-               <button class="lang-btn">EN</button>
-            </div>
             <div class="user-info">
                <span id="user-email">user@caritas.ua</span>
                <span class="user-avatar" id="user-initials">US</span>
@@ -229,32 +253,10 @@
             </div>
          </div>
 
-         <div class="charts-wrapper">
+         <div class="charts-row-2">
             <div class="chart-box">
                <h3><i class="fa-solid fa-map-location-dot"></i> Бенефіціари за областями</h3>
                <canvas id="chartOblasts"></canvas>
-            </div>
-            <div class="chart-box">
-               <h3><i class="fa-solid fa-chart-pie"></i> Демографія (стать)</h3>
-               <canvas id="chartDemographics"></canvas>
-            </div>
-         </div>
-
-         <div class="charts-row-2">
-            <div class="chart-box">
-               <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (по роках)</h3>
-               <canvas id="chartTimeline"></canvas>
-            </div>
-            <div class="chart-box">
-               <h3><i class="fa-solid fa-box-open"></i> Розподіл палива (Тонни)</h3>
-               <canvas id="chartFuel"></canvas>
-            </div>
-         </div>
-
-         <div class="charts-row-2">
-            <div class="chart-box">
-               <h3><i class="fa-solid fa-tags"></i> Розподіл за типом допомоги</h3>
-               <canvas id="chartAssistanceType"></canvas>
             </div>
             <div class="chart-box">
                <h3><i class="fa-solid fa-layer-group"></i> Розподіл допомоги по областях (домогосподарства)</h3>
@@ -262,10 +264,25 @@
             </div>
          </div>
 
-         <div class="charts-row-2">
+         <div class="charts-row-3">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-chart-pie"></i> Демографія (стать)</h3>
+               <canvas id="chartDemographics"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-tags"></i> Розподіл за типом допомоги</h3>
+               <canvas id="chartAssistanceType"></canvas>
+            </div>
             <div class="chart-box">
                <h3><i class="fa-solid fa-people-group"></i> Групи населення</h3>
                <canvas id="chartPopGroup"></canvas>
+            </div>
+         </div>
+
+         <div class="charts-row-2">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-box-open"></i> Розподіл палива (Тонни)</h3>
+               <canvas id="chartFuel"></canvas>
             </div>
             <div class="chart-box">
                <h3><i class="fa-solid fa-chart-bar"></i> Вікові групи (Ж/Ч)</h3>
@@ -276,7 +293,7 @@
          <div class="charts-row-map-single">
             <div class="chart-box map-box">
                <h3><i class="fa-solid fa-earth-europe"></i> Геопросторова карта охоплення</h3>
-               <div id="map" style="height: 400px; width: 100%;"></div>
+               <div id="map"></div>
             </div>
          </div>
 
@@ -297,10 +314,17 @@
             </div>
          </div>
 
-         <div class="chart-box chart-full">
-            <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
-            <canvas id="chartMonthly"></canvas>
+         <div class="charts-row-2" style="margin-top: 20px;">
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-money-bill-trend-up"></i> Динаміка надання допомоги (по роках)</h3>
+               <canvas id="chartTimeline"></canvas>
+            </div>
+            <div class="chart-box">
+               <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
+               <canvas id="chartMonthly"></canvas>
+            </div>
          </div>
+
       </main>
 
       <footer>
