@@ -174,21 +174,42 @@ header {
 }
 
 .header-logo {
-   height: 72px;
-   width: auto;
+   height: 40px !important;
+   /* Фіксована висота для обох */
+   width: auto !important;
+   /* Ширина підлаштується сама */
    object-fit: contain;
-   display: block;
+   /* Щоб лого не розтягувалося */
 }
 
 .shelter-logo {
-   height: 72px;
-   width: auto;
+   height: 35px !important;
 }
 
 .divider {
    height: 72px;
    width: 2px;
    background-color: #ddd;
+}
+
+/* Уніфіковані логотипи */
+.header-logo {
+   height: 40px !important;
+   width: auto !important;
+   object-fit: contain;
+}
+
+/* Мапа на весь блок */
+#map {
+   width: 100% !important;
+   height: 400px !important;
+   border-radius: var(--border-radius);
+   z-index: 1;
+}
+
+/* Щоб бублики з легендою праворуч не "з'їжджали" */
+.chart-box canvas {
+   max-height: 300px !important;
 }
 
 .header-title {
@@ -490,8 +511,9 @@ canvas {
 }
 
 #map {
-   height: 590px;
-   border-radius: 8px;
+   width: 100% !important;
+   height: 400px !important;
+   border-radius: var(--border-radius);
 }
 
 .charts-row-map-single {

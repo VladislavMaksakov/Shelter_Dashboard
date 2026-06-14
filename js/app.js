@@ -629,7 +629,7 @@ function initMap() {
 
    leafletMap = L.map('map', {
       zoomControl: true,
-      scrollWheelZoom: true,
+      scrollWheelZoom: false,
       maxBounds: ukraineBounds,
       maxBoundsViscosity: 1.0,
       minZoom: 6,
