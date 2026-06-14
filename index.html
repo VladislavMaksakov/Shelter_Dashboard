@@ -9,6 +9,7 @@
    <link rel="stylesheet" href="css/style.css">
 
    <style>
+      /* 1. Компактні KPI картки */
       .kpi-card {
          padding: 12px 16px !important;
          gap: 12px !important;
@@ -25,8 +26,40 @@
          font-size: 1.35rem !important;
       }
 
+      /* 2. Рятуємо сітку від розтягування графіками */
+      .charts-wrapper,
+      .charts-row-2,
+      .charts-row-map-single {
+         display: flex !important;
+         flex-wrap: wrap !important;
+         align-items: flex-start !important;
+         /* Головний фікс: блоки більше не тягнуть сусідів по висоті! */
+         gap: 20px;
+      }
+
+      .chart-box {
+         flex: 1 1 calc(50% - 20px) !important;
+         min-width: 300px !important;
+         /* На телефонах буде переноситися в колонку */
+         box-sizing: border-box;
+      }
+
+      .chart-full,
+      .map-box {
+         flex: 1 1 100% !important;
+         /* Карта і таблиця на всю ширину */
+      }
+
+      .chart-box canvas {
+         max-height: 400px !important;
+         /* Графіки не ростимуть безкінечно і не ламатимуть екран */
+         width: 100% !important;
+      }
+
+      /* 3. Таблиця: адекватна висота, щоб був скрол для всіх областей */
       .mini-table-wrapper {
-         max-height: none !important;
+         max-height: 450px !important;
+         overflow-y: auto !important;
       }
    </style>
 
@@ -243,7 +276,7 @@
          <div class="charts-row-map-single">
             <div class="chart-box map-box">
                <h3><i class="fa-solid fa-earth-europe"></i> Геопросторова карта охоплення</h3>
-               <div id="map"></div>
+               <div id="map" style="height: 400px; width: 100%;"></div>
             </div>
          </div>
 
@@ -263,6 +296,7 @@
                </table>
             </div>
          </div>
+
          <div class="chart-box chart-full">
             <h3><i class="fa-solid fa-calendar-days"></i> Щомісячна динаміка (кількість бенефіціарів)</h3>
             <canvas id="chartMonthly"></canvas>
